@@ -51,14 +51,14 @@ public:
         return operatorFunction(const_cast<operatorFunctionParam *>(&param));
     }
 };
-
+// class below is currently unused
 class IteratorSWFK1stD: public Stoner_Wolf_Fart_Kirschner_1st_Derivative 
 {
 private:
 tools::FindMeMin FmM;
 std::vector<float> IteratedDerivative, function, Minima;
 std::vector<std::vector<float>> StoreIteratedDerivative;
-std::vector<std::pair<float, float>> MinimaPhiPair; //= new std::vector<std::pair<float, float>>;
+std::vector<std::pair<float, float>> MinimaPhiPair;
 float *min = new float;
 std::vector<float> *T_ = new std::vector<float>;
 Operator op;
@@ -75,12 +75,9 @@ Stoner_Wolf_Fart_Kirschner_1st_Derivative(K1, K2, C, Phi)
 std::vector<std::vector<float>> do_stuff_with_function(Stoner_Wolf_Fart_Kirschner_1st_Derivative::type Type)
 {
     function.clear();
-    //function->resize(K1_->size());
     Operator::operatorFunctionParam param;
     param.n = 8;
     *param.VEC = function;
-    // MinimaPhiPair.clear();
-    // MinimaPhiPair.resize(K1_->size());
     IteratedDerivative.clear();
     IteratedDerivative.resize((K1_->size()));
     T_->resize(K1_->size());
@@ -102,10 +99,8 @@ std::vector<std::vector<float>> do_stuff_with_function(Stoner_Wolf_Fart_Kirschne
                  * pow(sin((*phi_)[i]), 3) * cos((*phi_)[i])
                  + pow((*C_)[j], 2)*sin(2*(*phi_)[i]);
                  if (function[i] < function[i + param.n] && function[i] < function[i - param.n])
-                {
-                //  std::cout <<"im at the loop with if, SWFK, derivative:"<< IteratedDerivative[i]<< " function " << (function)[i] <<" K2: " << (*K2_)[j]<<" KT1: " << (*K1_)[j] <<" Phi: "  <<(*phi_)[i] <<" Temperature: "<<(*T_)[i] <<std::endl;
-                MinimaPhiPair.push_back(std::make_pair((*T_)[i], (function)[i]));
-                    // }
+                 {
+                    MinimaPhiPair.push_back(std::make_pair((*T_)[i], (function)[i]));
                  }
             }
     StoreIteratedDerivative.push_back(IteratedDerivative);
@@ -128,6 +123,7 @@ std::vector<float> get_me_iterated_derivative()
 
 };
 
+// end of unused class
 class IteratorSWFK
 {
     private:
@@ -143,7 +139,7 @@ class IteratorSWFK
     Phi_(new std::vector<float>(Phi)),
     T_(new std::vector<float>(T))
     {}
-      /////////////// end constructor //////////////////
+ 
       void IterateSWFK()
 {
     function.clear();
@@ -164,11 +160,7 @@ class IteratorSWFK
                  - ((*C_)[j]*(*C_)[j]*(2.1))/2 
                 *pow(cos((*Phi_)[i]), 2);
                 function.push_back(functionFloat);
-              //  std::cout<< "SWFK, PRELOOP, FUNCTION:  " << function[i] << " KT1: " << (*KT1)[i] << " KT2: " <<j<<" phi:  "<< (*Phi_)[i] << std::endl;
                 
-                //  IteratedDerivative[i] = sin(2*(*Phi_)[i])*(*KT1)[j] + 4*(*KT2)[j] 
-                //  * pow(sin((*Phi_)[i]), 3) * cos((*Phi_)[i])
-                //  + pow((*C_)[j], 2)*sin(2*(*Phi_)[i]);
                  if (abs(function[i + param.n] - function[i]) < 0.001 && abs(function[i] - function[i - param.n]) > 0.001)
                 {
                 std::cout<< "SWFK, writin pairs, Phi_:  " << (function)[i] << " function: " << (*Phi_)[i]<<std::endl;
