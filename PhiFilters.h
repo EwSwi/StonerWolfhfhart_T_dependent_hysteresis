@@ -23,7 +23,6 @@
 // }
 // };
 class MinimaAmountAsess
-//// this filters out these random shits at phi = 0///////////
 {
     private:
     std::vector<double> Vector1, Vector2;
