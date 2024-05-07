@@ -3,56 +3,87 @@
 #include <vector>
 #include <utility>
 #include <iostream>
-
-/// this header is yet to be developed
-
-// class Interpolation
-// {
-//     private:
-//     std::vector<float> *x_, *y_;
-//     int *n = new int;
-//     int *m = new int;
-//     public:
-// Interpolation(std::vector<float> x, std::vector<float> y):
-// x_(new std::vector<float>(x)), y_(new std::vector<float>(y))
-// {}
-// void interpolate_with_linear()
-// {
-//     float a =y_->at(*n)/(x_->at(*n) - (x_->at(*m)/y_->at(*m)));
-
-// }
-// };
-class MinimaAmountAsess
+class SeparateForCosineCalc
+// Cosine is being the function interpreted as the normalised magnetisation
 {
-    private:
-    std::vector<double> Vector1, Vector2;
-   std::vector<std::pair<double,double>> storeIt;
-    public:
-MinimaAmountAsess(std::vector<double> V1,  std::vector<double> V2):Vector1(V1), Vector2(V2)
+private:
+std::vector<std::pair<double, double>> cosPhiPair_, cos1stPhiPair, cos2ndPhiPair;
+std::vector<double> H_, H_1st, H_2nd;
+public:
+SeparateForCosineCalc(
+const std::vector<std::pair<double, double>> cosPhiPair,
+std::vector<double> H)
+:
+cosPhiPair_(cosPhiPair),
+H_(H){} // declare H as an addition for debug
 
-{}
-void pair_to_value()
+void separate()
 {
-    //storeIt.resize()
-    std::vector<std::vector<double>> storeItLocal;
-  for (int j = 0; j < Vector2.size(); j++) {
-    double tempV2plus, tempV2minus;
-            for(int i = j + 1; i < Vector1.size() -1; i++) {
-                if(Vector2[j] <= Vector2[i] + 0.01 && Vector2[j] >= Vector2[i] - 0.01) 
-                {
-                    storeIt.push_back(std::make_pair(Vector1[i],Vector2[j])); 
-                    std::cout<< Vector1[i] << " <- V1, V2->  " << Vector2[j] <<std::endl;
-                }
-            }
-        }
-}
+    std::pair<double, double> tempPair;
 
-std::vector<std::pair<double, double>>  return_vector_vector()
+    for(size_t i=0; i<cosPhiPair_.size(); i++)
     {
-        return storeIt;
+        if(cosPhiPair_[i].second >= -0.05 && cosPhiPair_[i].second <= 3.145) //separate first minima set
+        {
+            tempPair = std::make_pair(cosPhiPair_[i].first, cosPhiPair_[i].second);
+            cos1stPhiPair.push_back(tempPair);
+            H_1st.push_back(H_[i]); // mag field info
+        }
+        else if((cosPhiPair_[i].second <= -0.05 && cosPhiPair_[i].second >= -1.57)  // from second minima set
+        || (cosPhiPair_[i].second >= 3.146 && cosPhiPair_[i].second <= 4.71))
+        {
+            tempPair = std::make_pair(cosPhiPair_[i].first, cosPhiPair_[i].second);
+            cos2ndPhiPair.push_back(tempPair);
+            H_2nd.push_back(H_[i]); // mag field info
+        }
     }
-
+}
+// series of getits, i will rewrite them at some point to be more of a pair<pair,double> maybe
+std::vector<std::pair<double, double>> cos0_to_phi(){return cos1stPhiPair;}
+std::vector<std::pair<double, double>> cosphi_to_2phi(){return cos2ndPhiPair;}
+std::vector<double> return_H1st(){return H_1st;}
+std::vector<double> return_H2nd(){return H_2nd;}
 };
 
+// filter cos <0 and cos>0 to get an output reminding hysteresis loop
 
+class SelectHysteresisBranch
+{
+private: 
+std::vector<std::pair<double, double>> cosPhiPair_, filteredCosPhiPair;
+public:
+SelectHysteresisBranch(
+const std::vector<std::pair<double, double>> cosPhiPair)
+:
+cosPhiPair_(cosPhiPair){}
+
+void selectUpper(bool select)
+{
+    filteredCosPhiPair.clear();
+    filteredCosPhiPair.resize(cosPhiPair_.size());
+    if(select = 1)
+    {
+        for(size_t i=0; i<cosPhiPair_.size();i++)
+        {
+            if(cosPhiPair_[i].first >= 0)
+            {
+            filteredCosPhiPair[i] = cosPhiPair_[i];
+            }
+        }
+    }
+    if(select = 0)
+    {
+        for(size_t i=0; i<cosPhiPair_.size();i++)
+        {
+            if(cosPhiPair_[i].first <= 0)
+            {
+            filteredCosPhiPair[i] = cosPhiPair_[i];
+            }
+        }
+
+    }
+}
+
+
+};
 #endif
