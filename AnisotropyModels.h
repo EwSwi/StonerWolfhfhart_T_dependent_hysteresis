@@ -149,11 +149,7 @@ void calcPolynomialKT2(double x6, double x5, double x4, double x3, double x2, do
     KT2.push_back(tempKT2);
     }
 }
-std::vector<float> get_me_KT2()
-{
-    return KT2;
-}
-
+std::vector<float> get_me_KT2(){return KT2;}
 };
 
 }
