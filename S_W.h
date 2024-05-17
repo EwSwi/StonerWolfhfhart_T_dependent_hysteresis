@@ -51,79 +51,8 @@ public:
         return operatorFunction(const_cast<operatorFunctionParam *>(&param));
     }
 };
-// class below is currently unused
-class IteratorSWFK1stD: public Stoner_Wolf_Fart_Kirschner_1st_Derivative 
-{
-private:
-tools::FindMeMin FmM;
-std::vector<float> IteratedDerivative, function, Minima;
-std::vector<std::vector<float>> StoreIteratedDerivative;
-std::vector<std::pair<float, float>> MinimaPhiPair;
-float *min = new float;
-std::vector<float> *T_ = new std::vector<float>;
-Operator op;
-public:
-IteratorSWFK1stD(const std::vector<float> K1, const std::vector<float> K2, const std::vector<float> C, const std::vector<float> Phi, const std::vector<float> T):
-Stoner_Wolf_Fart_Kirschner_1st_Derivative(K1, K2, C, Phi)
-{
-    *K1_ = K1;
-    *K2_ = K2;
-    *C_ = C;
-    *phi_ = Phi;
-    *T_ = T;
-};
-std::vector<std::vector<float>> do_stuff_with_function(Stoner_Wolf_Fart_Kirschner_1st_Derivative::type Type)
-{
-    function.clear();
-    Operator::operatorFunctionParam param;
-    param.n = 8;
-    *param.VEC = function;
-    IteratedDerivative.clear();
-    IteratedDerivative.resize((K1_->size()));
-    T_->resize(K1_->size());
-    K2_->resize(K1_->size());
-    switch(Type)
-    {
-    case phi:
-        for(size_t j = 0; j<(*K1_).size(); j++)
-            {
-            for(size_t i=0; i<(*phi_).size(); i++)
-            {
-                float functionFloat = pow(sin((*phi_)[i]),2)*(*K1_)[j] 
-                  + pow(sin((*phi_)[i]), 4)*((*K2_)[j]) 
-                 - ((*C_)[j]*(*C_)[j]*(2.1))/2 
-                *pow(cos((*phi_)[i]), 2);
-                function.push_back(functionFloat);
-                
-                 IteratedDerivative[i] = sin(2*(*phi_)[i])*(*K1_)[j] + 4*(*K2_)[j] 
-                 * pow(sin((*phi_)[i]), 3) * cos((*phi_)[i])
-                 + pow((*C_)[j], 2)*sin(2*(*phi_)[i]);
-                 if (function[i] < function[i + param.n] && function[i] < function[i - param.n])
-                 {
-                    MinimaPhiPair.push_back(std::make_pair((*T_)[i], (function)[i]));
-                 }
-            }
-    StoreIteratedDerivative.push_back(IteratedDerivative);
-            }
-    }
-return StoreIteratedDerivative;
-}
-std::vector<std::vector<float>> operator*(Stoner_Wolf_Fart_Kirschner_1st_Derivative::type Type)
-{
-    return do_stuff_with_function(Type);
-}
-std::vector<std::pair<float, float>> get_me_pairs()
-{
-        return MinimaPhiPair;
-}
-std::vector<float> get_me_iterated_derivative()
-{
-    return IteratedDerivative;
-}
 
-};
 
-// end of unused class
 class IteratorSWFK
 {
     private:
@@ -139,12 +68,12 @@ class IteratorSWFK
     Phi_(new std::vector<float>(Phi)),
     T_(new std::vector<float>(T))
     {}
- 
+      /////////////// end constructor //////////////////
       void IterateSWFK()
 {
     function.clear();
     Operator::operatorFunctionParam param;
-    param.n = 2;
+    param.n = 5;
     *param.VEC = function;
     IteratedDerivative.clear();
     IteratedDerivative.resize((KT1->size()));
@@ -156,15 +85,14 @@ class IteratorSWFK
             for(size_t i=0; i<(*Phi_).size(); i++)
             {
                 float functionFloat = pow(sin((*Phi_)[i]),2)*(*KT1)[j] 
-                  + pow(sin((*Phi_)[i]), 4)*((*KT2)[j]) 
-                 - ((*C_)[j]*(*C_)[j]*(2.1))/2 
+                + pow(sin((*Phi_)[i]), 4)*((*KT2)[j]) 
+                 - ((2.1))/2 
                 *pow(cos((*Phi_)[i]), 2);
                 function.push_back(functionFloat);
-                
-                 if (abs(function[i + param.n] - function[i]) < 0.001 && abs(function[i] - function[i - param.n]) > 0.001)
+
+                 if (abs(function[i + param.n] - function[i]) < 0.0003 && abs(function[i] - function[i - param.n]) > 0.0003)
                 {
-                std::cout<< "SWFK, writin pairs, Phi_:  " << (function)[i] << " function: " << (*Phi_)[i]<<std::endl;
-                MinimaPhiPair.push_back(std::make_pair((function)[i], ((*Phi_)[i])));
+                MinimaPhiPair.push_back(std::make_pair((*Phi_)[i], ((*T_)[j])));
                 }
             }
     }
@@ -187,19 +115,34 @@ class IteratorSWFK
 class IteratorSWFog
 {
     private:
-    std::vector<float> *theta_, *K_, *H_, *Ms_, *phi_;
+    std::vector<float> *theta_, *K_, *H_, *Ms_, *phi_, *K2_;
     std::vector<float> IteratedDerivative;
-    std::vector<std::pair<float, float>> MinimaPhiPair;
+    std::vector<std::pair<float, float>> MinimaPhiPair, FunctionPhiPair;
     float u0_;
     public:
-IteratorSWFog(std::vector<float> theta,  std::vector<float> K,  std::vector<float> H, std::vector<float> Ms, std::vector<float> phi, float u0):
-theta_(new std::vector<float>(theta)), K_(new std::vector<float>(K)), H_(new std::vector<float>(H)),
-Ms_(new std::vector<float> (Ms)), phi_(new std::vector<float>(phi)), u0_(u0){}
+IteratorSWFog
+(std::vector<float> theta,  
+std::vector<float> K, 
+std::vector<float> K2, 
+std::vector<float> H, 
+std::vector<float> Ms, 
+std::vector<float> phi,
+ 
+float u0)
+:
+theta_(new std::vector<float>(theta)),
+
+ K_(new std::vector<float>(K)), 
+ H_(new std::vector<float>(H)),
+Ms_(new std::vector<float> (Ms)), 
+phi_(new std::vector<float>(phi)), 
+K2_(new std::vector<float>(K2)),
+u0_(u0){}
 void iterate_SWF_og()
 {
     Operator op;
     Operator::operatorFunctionParam param;
-    *param.n_ = 15;
+    *param.n_ = 10;
     *param.VEC = IteratedDerivative;
     MinimaPhiPair.clear();
         IteratedDerivative.clear();
@@ -208,17 +151,17 @@ void iterate_SWF_og()
         {
         
           IteratedDerivative.clear();
-            for(size_t i=1; i<(*phi_).size()-1; i++)
+            for(size_t i=0; i<(*phi_).size(); i++)
                 {
-                float iteratedDerivativeFloat = pow(sin((*phi_)[i]),2)*(*K_)[j] - 
-                (*H_)[j]*(*Ms_)[j]*(u0_)*cos((*phi_)[i] -(*theta_)[j]);
+                float iteratedDerivativeFloat = pow(sin((*phi_)[i]-(*theta_)[j]),2)*(*K_)[j] 
+               + pow(sin((*phi_)[i]-(*theta_)[j]), 4)*(*K2_)[j]
+                - (*H_)[j]*cos((*phi_)[i]);
                 IteratedDerivative.push_back(iteratedDerivativeFloat);
-                // cout<< IteratedDerivative[i] << " <- function, j -> " << j << " i: " << i << " phi: " << (*phi_)[i] << endl;
 
-                if (abs(IteratedDerivative[i + 1] - IteratedDerivative[i]) < 0.001 && abs(IteratedDerivative[i] - IteratedDerivative[i - 1]) > 0.001)
+                if (abs(IteratedDerivative[i + *param.n_] - IteratedDerivative[i]) < 0.005 && abs(IteratedDerivative[i] - IteratedDerivative[i - *param.n_]) > 0.005)
                 {
-                 cout<< IteratedDerivative[i] << " <- function, j -> " << j << " i: " << i << " phi: " << (*H_)[j] << " THE LOOP" << endl;
                     MinimaPhiPair.push_back(std::make_pair((*phi_)[i], (*H_)[j]));
+
                 }
             }
         }
@@ -228,13 +171,17 @@ void iterate_SWF_og()
 {
  return MinimaPhiPair;
 }
-  ~IteratorSWFog() { // Destructor to deallocate memory
-        delete theta_;
-        delete K_;
-        delete H_;
-        delete phi_;
-        delete Ms_;
-  }
+  std::vector<std::pair<float, float>> return_me_M_pairs()
+{
+ return FunctionPhiPair;
+}
+//   ~IteratorSWFog() { // Destructor to deallocate memory
+//         delete theta_;
+//         delete K_;
+//         delete H_;
+//         delete phi_;
+//         delete Ms_;
+  //}
 
 };
 

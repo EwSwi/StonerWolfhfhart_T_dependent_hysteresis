@@ -23,14 +23,13 @@ void separate()
 
     for(size_t i=0; i<cosPhiPair_.size(); i++)
     {
-        if(cosPhiPair_[i].second >= -0.05 && cosPhiPair_[i].second <= 3.145) //separate first minima set
+        if(cosPhiPair_[i].second >= 0 && cosPhiPair_[i].second <= 3.14) //separate first minima set
         {
             tempPair = std::make_pair(cosPhiPair_[i].first, cosPhiPair_[i].second);
             cos1stPhiPair.push_back(tempPair);
             H_1st.push_back(H_[i]); // mag field info
         }
-        else if((cosPhiPair_[i].second <= -0.05 && cosPhiPair_[i].second >= -1.57)  // from second minima set
-        || (cosPhiPair_[i].second >= 3.146 && cosPhiPair_[i].second <= 4.71))
+        else
         {
             tempPair = std::make_pair(cosPhiPair_[i].first, cosPhiPair_[i].second);
             cos2ndPhiPair.push_back(tempPair);
@@ -50,40 +49,108 @@ std::vector<double> return_H2nd(){return H_2nd;}
 class SelectHysteresisBranch
 {
 private: 
-std::vector<std::pair<double, double>> cosPhiPair_, filteredCosPhiPair;
+std::vector<std::pair<double, double>> cosPhiPair_, cosPhiPair_2nd, filteredCosPhiPair;
+std::vector<double> H_, H_2, H_save;
 public:
-SelectHysteresisBranch(
-const std::vector<std::pair<double, double>> cosPhiPair)
-:
-cosPhiPair_(cosPhiPair){}
+SelectHysteresisBranch( SeparateForCosineCalc *SFC)
+{
+   cosPhiPair_ = SFC->cos0_to_phi();
+   H_ = SFC->return_H1st();
+   H_2 = SFC->return_H2nd();
+   cosPhiPair_2nd = SFC->cosphi_to_2phi();
+}
+
 
 void selectUpper(bool select)
 {
     filteredCosPhiPair.clear();
-    filteredCosPhiPair.resize(cosPhiPair_.size());
-    if(select = 1)
+    H_save.clear();
+    if(select == true)
     {
         for(size_t i=0; i<cosPhiPair_.size();i++)
         {
             if(cosPhiPair_[i].first >= 0)
             {
-            filteredCosPhiPair[i] = cosPhiPair_[i];
+            filteredCosPhiPair.push_back(cosPhiPair_[i]);
+            H_save.push_back(H_[i]);
             }
         }
     }
-    if(select = 0)
+   else
     {
-        for(size_t i=0; i<cosPhiPair_.size();i++)
+        for(size_t i=0; i<cosPhiPair_2nd.size();i++)
         {
-            if(cosPhiPair_[i].first <= 0)
+            if(cosPhiPair_2nd[i].first <= 0)
             {
-            filteredCosPhiPair[i] = cosPhiPair_[i];
+           filteredCosPhiPair.push_back(cosPhiPair_2nd[i]);
+            H_save.push_back(H_2[i]);
             }
         }
 
     }
 }
-
-
+std::vector<std::pair<double, double>> return_cos() {return filteredCosPhiPair;}
+std::vector<double> return_H() {return H_save;}
 };
+
+// for temperature loops
+class TemperaturePhiFilter
+{
+    private:
+    std::vector<std::pair<float, float>> TempPhiPair_;
+    std::vector<std::pair<float,float>> filteredTempPhiPair;
+    std::vector<double> T, phi;
+    public:
+    // first from pair phi, second from pair T
+    TemperaturePhiFilter(std::vector<std::pair<float, float>> TempPhiPair)
+    :
+    TempPhiPair_(TempPhiPair)
+    {}
+
+    void filter_branch(bool topBranch)
+    {
+    filteredTempPhiPair.clear();
+        if (topBranch == true)
+        {
+             for(size_t i=0; i<TempPhiPair_.size(); i++)
+             {
+                if(TempPhiPair_[i].first >= 0 && TempPhiPair_[i].first <= 1.57)
+                {
+                    std::pair<float, float> TempoaryTempPhi = 
+                    std::make_pair(TempPhiPair_[i].first, TempPhiPair_[i].second);
+                    filteredTempPhiPair.push_back(TempoaryTempPhi);
+                }
+             }
+        }
+        if (topBranch == false)
+        {
+             for(int i=0; i<TempPhiPair_.size(); i++)
+            {
+                if(TempPhiPair_[i].first > 1.57 && TempPhiPair_[i].first <= 3.14)
+                {
+
+                    filteredTempPhiPair.push_back(std::make_pair(TempPhiPair_[i].first, TempPhiPair_[i].second));
+                }
+            }
+        }
+          
+}
+
+    void make_vector()
+    {
+        for(int i=0; i<filteredTempPhiPair.size(); i++)
+        {
+            double tempT = filteredTempPhiPair[i].second;
+            double tempPhi = filteredTempPhiPair[i].first;
+            T.push_back(tempT);
+            phi.push_back(tempPhi);
+
+        }
+    }
+
+    std::vector<std::pair<float, float>> return_filtered_T_phi_pairs(){return filteredTempPhiPair;}
+    std::vector<double> return_filtered_T(){return T;}
+    std::vector<double> return_filtered_phi(){return phi;}
+};
+
 #endif
