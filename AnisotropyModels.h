@@ -65,10 +65,10 @@ void calc_me_magnetisation_scalar()
     for (size_t i=0; i <phi_.size(); i++)
     { 
     double cosine = cos(phi_[i]);
-    std::cout<< "cosine: " <<cosine << " h: " << H_[i] << std::endl;
     std::pair<double, double> tempPair= std::make_pair(cosine, phi_[i]);
-    CosHPair.push_back(tempPair);
-
+    CosHPair.push_back(tempPair); 
+        //i am pretty sure i wanted to return magnetic field value as a pair.second, 
+        //however i did not and it works, i will clear up code later on
     }
 }
 std::vector<std::pair<double, double>> return_cosine(){return CosHPair;}
@@ -125,7 +125,7 @@ std::vector<float> get_linear_KT()
 }
 };
 
-// addedd polynomial model for KT2, as previous did not work well enough
+// addedd polynomial model for KT2, as previous might not be sufficient for all temperature anisotropy flows
 class PolynomialModelKT2
 {
 private:
@@ -144,7 +144,7 @@ void calcPolynomialKT2(double x6, double x5, double x4, double x3, double x2, do
     double tempKT2 = x6*pow(copyKT1[i], 6) + x5*pow(copyKT1[i],5) 
     // space for visibility
     + x4*pow(copyKT1[i],4) + x3*pow(copyKT1[i],3)
-    // crying rn
+    // space for visibility vol. 2
     + x2*pow(copyKT1[i], 2) + x*copyKT1[i] + theConstant;
     KT2.push_back(tempKT2);
     }
