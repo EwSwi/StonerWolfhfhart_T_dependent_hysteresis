@@ -142,8 +142,8 @@ class TemperaturePhiFilter
         {
             double tempT = filteredTempPhiPair[i].second;
             double tempPhi = filteredTempPhiPair[i].first;
-            T.push_back(tempT);
-            phi.push_back(tempPhi);
+            T.push_back(tempT); // make vector for temperature corresponding to calculated cosine
+            phi.push_back(tempPhi); // make vector for cosine calc 
 
         }
     }
